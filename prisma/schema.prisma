@@ -28,9 +28,9 @@ model User {
 model Movie {
   id          String   @id @default(cuid())
   title       String
-  description String?
+  description String?   @db.Text
   rating      Float?   
-  genre       Genre    
+  genre       String    
   posterUri   String?
   backdropUri String?
   trailerUri  String?   
@@ -43,18 +43,4 @@ model Movie {
 enum Role {
   USER
   ADMIN
-}
-
-enum Genre {
-  ACTION
-  COMEDY
-  DRAMA
-  HORROR
-  THRILLER
-  SCIFI
-  FANTASY
-  ROMANCE
-  DOCUMENTARY
-  ANIMATION
-  OTHER
 }
