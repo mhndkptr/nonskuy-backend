@@ -17,14 +17,44 @@ model User {
   id        String   @id @default(cuid())
   email     String   @unique
   username  String   @unique
-  name      String
+  fullname  String
   password  String
+  role      Role    @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  deletedAt DateTime @deletedAt
+  deletedAt DateTime?
 }
 
 model Movie {
-  id        String @id @default(cuid())
-  
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  rating      Float?   
+  genre       Genre    
+  posterUri   String?
+  backdropUri String?
+  trailerUri  String?   
+  releaseDate DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Genre {
+  ACTION
+  COMEDY
+  DRAMA
+  HORROR
+  THRILLER
+  SCIFI
+  FANTASY
+  ROMANCE
+  DOCUMENTARY
+  ANIMATION
+  OTHER
 }
