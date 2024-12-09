@@ -1,9 +1,11 @@
-export interface Movie {
+import { $Enums } from "@prisma/client";
+
+export interface IMovie {
   id: string;
   title: string;
   description?: string | null; // Optional field
   rating?: number | null; // Optional field
-  genre: Genre;
+  genre: $Enums.Genre;
   posterUri?: string | null; // Optional field
   backdropUri?: string | null; // Optional field
   trailerUri?: string | null; // Optional field

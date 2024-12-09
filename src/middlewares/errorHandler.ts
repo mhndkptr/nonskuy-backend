@@ -54,7 +54,7 @@ class InternalServerError extends Error {
   }
 }
 
-module.exports = {
+export default {
   NotFoundError,
   ValidationError,
   AuthenticationError,
