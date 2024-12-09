@@ -30,17 +30,18 @@ const movieService = {
     return movie;
   },
 
-  createMovie: async (title: string, description: string, rating: number, genre: $Enums.Genre, posterUri: string, backdropUri: string, trailerUri: string, releaseDate: Date) => {
+  createMovie: async (title: string, description: string, rating: string, genre: string, posterUri: string, backdropUri: string, trailerUri: string, releaseDate: string) => {
     const { error } = createMovieSchema.validate({
       title,
       description,
-      rating,
+      rating: parseFloat(rating),
       genre,
       posterUri,
       backdropUri,
       trailerUri,
-      releaseDate,
+      releaseDate: new Date(releaseDate),
     });
+
     if (error) {
       throw new ValidationError(error.details[0].message);
     }
@@ -49,7 +50,7 @@ const movieService = {
       title: string;
       description: string;
       rating: number;
-      genre: $Enums.Genre;
+      genre: string;
       posterUri: string;
       backdropUri: string;
       trailerUri: string;
@@ -57,12 +58,12 @@ const movieService = {
     } = {
       title,
       description,
-      rating,
+      rating: parseFloat(rating),
       genre,
       posterUri,
       backdropUri,
       trailerUri,
-      releaseDate,
+      releaseDate: new Date(releaseDate),
     };
 
     const newMovie = await Movie.create(data);
@@ -70,7 +71,7 @@ const movieService = {
     return newMovie;
   },
 
-  updateMovie: async (id: string, title?: string, description?: string, rating?: number, genre?: $Enums.Genre, posterUri?: string, backdropUri?: string, trailerUri?: string, releaseDate?: Date) => {
+  updateMovie: async (id: string, title?: string, description?: string, rating?: number, genre?: string, posterUri?: string, backdropUri?: string, trailerUri?: string, releaseDate?: Date) => {
     const { error: idError } = movieIdSchema.validate({ id });
     if (idError) {
       throw new ValidationError(idError.details[0].message);

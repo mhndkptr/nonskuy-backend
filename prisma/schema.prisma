@@ -30,7 +30,7 @@ model Movie {
   title       String
   description String?
   rating      Float?   
-  genre       Genre    
+  genre       String    
   posterUri   String?
   backdropUri String?
   trailerUri  String?   
@@ -43,18 +43,4 @@ model Movie {
 enum Role {
   USER
   ADMIN
-}
-
-enum Genre {
-  ACTION
-  COMEDY
-  DRAMA
-  HORROR
-  THRILLER
-  SCIFI
-  FANTASY
-  ROMANCE
-  DOCUMENTARY
-  ANIMATION
-  OTHER
 }

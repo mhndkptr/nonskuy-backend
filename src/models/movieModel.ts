@@ -1,4 +1,4 @@
-import { $Enums, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { IMovie } from "../interfaces/movieInterface";
 
 const prisma = new PrismaClient();
@@ -12,7 +12,7 @@ const Movie = {
       where: { id: id },
     });
   },
-  create: async (data: { title: string; description: string; rating: number; genre: $Enums.Genre; posterUri: string; backdropUri: string; trailerUri: string; releaseDate: Date }) => {
+  create: async (data: { title: string; description: string; rating: number; genre: string; posterUri: string; backdropUri: string; trailerUri: string; releaseDate: Date }) => {
     return await prisma.movie.create({ data });
   },
   update: async (id: string, data: Partial<IMovie>) => {
