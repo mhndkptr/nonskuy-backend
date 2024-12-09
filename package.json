@@ -4,7 +4,7 @@
   "description": "Api for Nonskuy App",
   "main": "api/index.ts",
   "scripts": {
-    "build": "npx tsc",
+    "build": "prisma generate && npx tsc",
     "start": "nodemon dist/app.js",
     "dev": "nodemon api/index.ts"
   },
