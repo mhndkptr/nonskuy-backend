@@ -25,3 +25,7 @@ export const updateMovieSchema = Joi.object({
 export const movieIdSchema = Joi.object({
   id: Joi.string().required(),
 });
+
+export const searchMovieSchema = Joi.object({
+  query: Joi.string().required(),
+});
