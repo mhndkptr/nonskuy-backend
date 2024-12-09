@@ -142,6 +142,50 @@ const movieService = {
       return results;
     };
 
+    // const binarySearch = (movies: any[], searchTerm: string) => {
+    //   let left = 0;
+    //   let right = movies.length - 1;
+    //   const results = [];
+
+    //   while (left <= right) {
+    //     const mid = Math.floor((left + right) / 2);
+    //     const movie = movies[mid];
+
+    //     if (movie.title.toLowerCase().includes(searchTerm.toLowerCase())) {
+    //       results.push(movie);
+    //       break;
+    //     } else if (movie.title.toLowerCase() < searchTerm.toLowerCase()) {
+    //       left = mid + 1;
+    //     } else {
+    //       right = mid - 1;
+    //     }
+    //   }
+    //   return results;
+    // };
+
+    // const jumpSearch = (movies: any[], searchTerm: string) => {
+    //   const n = movies.length;
+    //   let step = Math.floor(Math.sqrt(n));
+    //   let prev = 0;
+
+    //   while (movies[Math.min(step, n) - 1].title.toLowerCase() < searchTerm.toLowerCase()) {
+    //     prev = step;
+    //     step += Math.floor(Math.sqrt(n));
+    //     if (prev >= n) return [];
+    //   }
+
+    //   while (movies[prev].title.toLowerCase() < searchTerm.toLowerCase()) {
+    //     prev++;
+    //     if (prev === Math.min(step, n)) return [];
+    //   }
+
+    //   if (movies[prev].title.toLowerCase().includes(searchTerm.toLowerCase())) {
+    //     return [movies[prev]];
+    //   }
+
+    //   return [];
+    // };
+
     const binarySearch = (movies: any[], searchTerm: string) => {
       let left = 0;
       let right = movies.length - 1;
@@ -151,9 +195,23 @@ const movieService = {
         const mid = Math.floor((left + right) / 2);
         const movie = movies[mid];
 
-        if (movie.title.toLowerCase() === searchTerm.toLowerCase()) {
+        if (movie.title.toLowerCase().includes(searchTerm.toLowerCase())) {
           results.push(movie);
-          break;
+
+          // Mencari kemungkinan duplikat di sebelah kiri
+          let leftIndex = mid - 1;
+          while (leftIndex >= 0 && movies[leftIndex].title.toLowerCase().includes(searchTerm.toLowerCase())) {
+            results.push(movies[leftIndex]);
+            leftIndex--;
+          }
+
+          // Mencari kemungkinan duplikat di sebelah kanan
+          let rightIndex = mid + 1;
+          while (rightIndex < movies.length && movies[rightIndex].title.toLowerCase().includes(searchTerm.toLowerCase())) {
+            results.push(movies[rightIndex]);
+            rightIndex++;
+          }
+          break; // Keluar dari loop setelah menemukan semua hasil
         } else if (movie.title.toLowerCase() < searchTerm.toLowerCase()) {
           left = mid + 1;
         } else {
@@ -167,23 +225,28 @@ const movieService = {
       const n = movies.length;
       let step = Math.floor(Math.sqrt(n));
       let prev = 0;
+      const results = [];
 
+      // Mencari blok yang mungkin mengandung searchTerm
       while (movies[Math.min(step, n) - 1].title.toLowerCase() < searchTerm.toLowerCase()) {
         prev = step;
         step += Math.floor(Math.sqrt(n));
         if (prev >= n) return [];
       }
 
+      // Melakukan pencarian linear di dalam blok
       while (movies[prev].title.toLowerCase() < searchTerm.toLowerCase()) {
         prev++;
         if (prev === Math.min(step, n)) return [];
       }
 
-      if (movies[prev].title.toLowerCase() === searchTerm.toLowerCase()) {
-        return [movies[prev]];
+      // Mencari semua film yang cocok
+      while (prev < n && movies[prev].title.toLowerCase().includes(searchTerm.toLowerCase())) {
+        results.push(movies[prev]);
+        prev++;
       }
 
-      return [];
+      return results;
     };
 
     const movies = await Movie.findAll();
@@ -201,6 +264,9 @@ const movieService = {
     const startJump = performance.now();
     const jumpResults = jumpSearch(movies, query);
     const endJump = performance.now();
+
+    console.log(binaryResults);
+    console.log(jumpResults);
 
     const analytics = {
       linear: {
