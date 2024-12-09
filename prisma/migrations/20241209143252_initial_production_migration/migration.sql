@@ -19,9 +19,9 @@ CREATE TABLE `User` (
 CREATE TABLE `Movie` (
     `id` VARCHAR(191) NOT NULL,
     `title` VARCHAR(191) NOT NULL,
-    `description` VARCHAR(191) NULL,
+    `description` TEXT NULL,
     `rating` DOUBLE NULL,
-    `genre` ENUM('ACTION', 'COMEDY', 'DRAMA', 'HORROR', 'THRILLER', 'SCIFI', 'FANTASY', 'ROMANCE', 'DOCUMENTARY', 'ANIMATION', 'OTHER') NOT NULL,
+    `genre` VARCHAR(191) NOT NULL,
     `posterUri` VARCHAR(191) NULL,
     `backdropUri` VARCHAR(191) NULL,
     `trailerUri` VARCHAR(191) NULL,
