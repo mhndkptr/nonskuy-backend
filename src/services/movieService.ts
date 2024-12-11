@@ -1,19 +1,30 @@
 import Movie from "../models/movieModel";
 import errorHandler from "../middlewares/errorHandler";
 import { IMovie } from "../interfaces/movieInterface";
-import { $Enums } from "@prisma/client";
+import { $Enums, PrismaClient } from "@prisma/client";
 import { createMovieSchema, updateMovieSchema, movieIdSchema, searchMovieSchema } from "../validation/movieSchema";
 
 const NotFoundError = errorHandler.NotFoundError;
 const ValidationError = errorHandler.ValidationError;
+const prisma = new PrismaClient();
 
 const movieService = {
-  getAllMovies: async () => {
-    const movies = await Movie.findAll();
-    if (movies.length === 0) {
-      throw new NotFoundError("No movies found");
-    }
-    return movies;
+  getAllMovies: async (page: number, limit: number) => {
+    // const movies = await Movie.findAll();
+    // if (movies.length === 0) {
+    //   throw new NotFoundError("No movies found");
+    // }
+
+    const skip = (page - 1) * limit;
+    const [movies, totalMovies] = await Promise.all([
+      prisma.movie.findMany({
+        skip,
+        take: limit,
+      }),
+      prisma.movie.count(),
+    ]);
+
+    return { movies, totalMovies, totalPages: Math.ceil(totalMovies / limit) };
   },
 
   getMovie: async (id: string) => {
@@ -108,11 +119,11 @@ const movieService = {
       voteCount,
       voteAverage,
       budget,
-      genre,
+      genre: JSON.stringify(genre),
+      spokenLang: JSON.stringify(spokenLang),
       popularity,
       revenue,
       runtime,
-      spokenLang,
       originalLanguage,
       homepageUri,
       status,
@@ -168,11 +179,11 @@ const movieService = {
       voteCount,
       voteAverage,
       budget,
-      genre,
+      genre: JSON.stringify(genre),
+      spokenLang: JSON.stringify(spokenLang),
       popularity,
       revenue,
       runtime,
-      spokenLang,
       originalLanguage,
       homepageUri,
       status,

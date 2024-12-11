@@ -5,13 +5,29 @@ import { Request, Response, NextFunction } from "express";
 const movieController = {
   index: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const movies = await movieService.getAllMovies();
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      const { movies, totalMovies, totalPages } = await movieService.getAllMovies(page, limit);
+
+      const formattedMovies = movies.map((movie) => ({
+        ...movie,
+        genre: JSON.parse(movie.genre),
+        spokenLang: movie.spokenLang ? JSON.parse(movie.spokenLang) : [],
+      }));
+
       res.status(200).json({
         status: true,
         statusCode: res.statusCode,
         message: "Movies successfully found",
         data: {
-          movies: movies,
+          movies: formattedMovies,
+          pagination: {
+            totalMovies,
+            totalPages,
+            currentPage: page,
+            limit,
+          },
         },
       });
     } catch (error: any) {

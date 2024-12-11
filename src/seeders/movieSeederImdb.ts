@@ -58,6 +58,7 @@ async function main() {
       const backdrop_path = getBackdropPath(row.belongs_to_collection);
       const poster_path = getPosterPath(row.belongs_to_collection);
       if (row.imdb_id && row.title && row.overview && poster_path && row.genres && row.release_date) {
+        const genreNames = JSON.parse(row.genres.replace(/'/g, '"')).map((genre: { name: String }) => genre.name);
         const movie = {
           imdbId: row.imdb_id,
           title: row.title,
@@ -66,11 +67,11 @@ async function main() {
           voteCount: parseInt(row.vote_count) || 0,
           voteAverage: parseFloat(row.vote_average) || 0,
           budget: parseFloat(row.budget) || 0,
-          genre: row.genres.replace(/'/g, '"'),
+          genre: JSON.stringify(genreNames),
           popularity: parseFloat(row.popularity) || 0,
           revenue: parseFloat(row.revenue) || 0,
           runtime: parseInt(row.runtime) || 0,
-          spokenLang: row.spoken_languages,
+          spokenLang: row.spoken_languages ? JSON.stringify(JSON.parse(row.spoken_languages.replace(/'/g, '"'))) : null,
           originalLanguage: row.original_language,
           homepageUri: row.homepage,
           status: row.status,
