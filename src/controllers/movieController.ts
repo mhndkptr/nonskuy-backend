@@ -66,9 +66,31 @@ const movieController = {
       }
 
       const decoded = jwt.verify(token, process.env.APP_JWT_SECRET as string);
-      const { title, description, rating, genre, posterUri, backdropUri, trailerUri, releaseDate } = req.body;
+      const { imdbId, title, originalTitle, overview, voteCount, voteAverage, budget, genre, popularity, revenue, runtime, spokenLang, originalLanguage, homepageUri, status, tagline, posterUri, backdropUri, trailerUri, releaseDate } =
+        req.body;
 
-      const newMovie = await movieService.createMovie(title, description, rating, genre, posterUri, backdropUri, trailerUri, releaseDate);
+      const newMovie = await movieService.createMovie(
+        imdbId,
+        title,
+        originalTitle,
+        overview,
+        voteCount,
+        voteAverage,
+        budget,
+        genre,
+        popularity,
+        revenue,
+        runtime,
+        spokenLang,
+        originalLanguage,
+        homepageUri,
+        status,
+        tagline,
+        posterUri,
+        backdropUri,
+        trailerUri,
+        releaseDate
+      );
 
       res.status(201).json({
         status: true,
@@ -112,9 +134,30 @@ const movieController = {
 
       const decoded = jwt.verify(token, process.env.APP_JWT_SECRET as string);
       const { id } = req.params;
-      const { title, description, rating, genre, posterUri, backdropUri, trailerUri, releaseDate } = req.body;
+      const { title, originalTitle, overview, voteCount, voteAverage, budget, genre, popularity, revenue, runtime, spokenLang, originalLanguage, homepageUri, status, tagline, posterUri, backdropUri, trailerUri, releaseDate } = req.body;
 
-      const updatedMovie = await movieService.updateMovie(id, title, description, rating, genre, posterUri, backdropUri, trailerUri, releaseDate);
+      const updatedMovie = await movieService.updateMovie(
+        id,
+        title,
+        originalTitle,
+        overview,
+        voteCount,
+        voteAverage,
+        budget,
+        genre,
+        popularity,
+        revenue,
+        runtime,
+        spokenLang,
+        originalLanguage,
+        homepageUri,
+        status,
+        tagline,
+        posterUri,
+        backdropUri,
+        trailerUri,
+        releaseDate
+      );
       res.status(200).json({
         status: true,
         statusCode: res.statusCode,

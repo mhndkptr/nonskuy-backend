@@ -30,12 +30,45 @@ const movieService = {
     return movie;
   },
 
-  createMovie: async (title: string, description: string, rating: string, genre: string, posterUri: string, backdropUri: string, trailerUri: string, releaseDate: string) => {
+  createMovie: async (
+    imdbId: string,
+    title: string,
+    originalTitle: string,
+    overview: string | null,
+    voteCount: number | null,
+    voteAverage: number | null,
+    budget: number | null,
+    genre: string,
+    popularity: number | null,
+    revenue: number | null,
+    runtime: number | null,
+    spokenLang: string | null,
+    originalLanguage: string | null,
+    homepageUri: string,
+    status: string | null,
+    tagline: string | null,
+    posterUri: string | null,
+    backdropUri: string | null,
+    trailerUri: string | null,
+    releaseDate: string
+  ) => {
     const { error } = createMovieSchema.validate({
+      imdbId,
       title,
-      description,
-      rating: parseFloat(rating),
+      originalTitle,
+      overview,
+      voteCount,
+      voteAverage,
+      budget,
       genre,
+      popularity,
+      revenue,
+      runtime,
+      spokenLang,
+      originalLanguage,
+      homepageUri,
+      status,
+      tagline,
       posterUri,
       backdropUri,
       trailerUri,
@@ -47,19 +80,43 @@ const movieService = {
     }
 
     const data: {
+      imdbId: string;
       title: string;
-      description: string;
-      rating: number;
+      originalTitle: string;
+      overview?: string | null;
+      voteCount?: number | null;
+      voteAverage?: number | null;
+      budget?: number | null;
       genre: string;
-      posterUri: string;
-      backdropUri: string;
-      trailerUri: string;
+      popularity?: number | null;
+      revenue?: number | null;
+      runtime?: number | null;
+      spokenLang?: string | null;
+      originalLanguage?: string | null;
+      homepageUri: string;
+      status?: string | null;
+      tagline?: string | null;
+      posterUri?: string | null;
+      backdropUri?: string | null;
+      trailerUri?: string | null;
       releaseDate: Date;
     } = {
+      imdbId,
       title,
-      description,
-      rating: parseFloat(rating),
+      originalTitle,
+      overview,
+      voteCount,
+      voteAverage,
+      budget,
       genre,
+      popularity,
+      revenue,
+      runtime,
+      spokenLang,
+      originalLanguage,
+      homepageUri,
+      status,
+      tagline,
       posterUri,
       backdropUri,
       trailerUri,
@@ -71,7 +128,29 @@ const movieService = {
     return newMovie;
   },
 
-  updateMovie: async (id: string, title?: string, description?: string, rating?: number, genre?: string, posterUri?: string, backdropUri?: string, trailerUri?: string, releaseDate?: Date) => {
+  updateMovie: async (
+    id: string,
+    title?: string,
+    originalTitle?: string,
+    overview?: string | null,
+    voteCount?: number | null,
+    voteAverage?: number | null,
+    budget?: number | null,
+    genre?: string,
+    popularity?: number | null,
+    revenue?: number | null,
+    runtime?: number | null,
+    spokenLang?: string | null,
+    originalLanguage?: string | null,
+    homepageUri?: string,
+    status?: string | null,
+    tagline?: string | null,
+    posterUri?: string | null,
+    backdropUri?: string | null,
+    trailerUri?: string | null,
+    releaseDate?: Date,
+    p0?: Date | undefined
+  ) => {
     const { error: idError } = movieIdSchema.validate({ id });
     if (idError) {
       throw new ValidationError(idError.details[0].message);
@@ -84,9 +163,20 @@ const movieService = {
 
     const { error } = updateMovieSchema.validate({
       title,
-      description,
-      rating,
+      originalTitle,
+      overview,
+      voteCount,
+      voteAverage,
+      budget,
       genre,
+      popularity,
+      revenue,
+      runtime,
+      spokenLang,
+      originalLanguage,
+      homepageUri,
+      status,
+      tagline,
       posterUri,
       backdropUri,
       trailerUri,
@@ -98,9 +188,20 @@ const movieService = {
 
     const updatedData: Partial<IMovie> = {
       title,
-      description,
-      rating,
+      originalTitle,
+      overview,
+      voteCount,
+      voteAverage,
+      budget,
       genre,
+      popularity,
+      revenue,
+      runtime,
+      spokenLang,
+      originalLanguage,
+      homepageUri,
+      status,
+      tagline,
       posterUri,
       backdropUri,
       trailerUri,
