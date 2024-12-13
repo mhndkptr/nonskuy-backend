@@ -5,13 +5,29 @@ import { Request, Response, NextFunction } from "express";
 const movieController = {
   index: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const movies = await movieService.getAllMovies();
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      const { movies, totalMovies, totalPages } = await movieService.getAllMovies(page, limit);
+
+      const formattedMovies = movies.map((movie) => ({
+        ...movie,
+        genre: JSON.parse(movie.genre),
+        spokenLang: movie.spokenLang ? JSON.parse(movie.spokenLang) : [],
+      }));
+
       res.status(200).json({
         status: true,
         statusCode: res.statusCode,
         message: "Movies successfully found",
         data: {
-          movies: movies,
+          movies: formattedMovies,
+          pagination: {
+            totalMovies,
+            totalPages,
+            currentPage: page,
+            limit,
+          },
         },
       });
     } catch (error: any) {
@@ -66,9 +82,31 @@ const movieController = {
       }
 
       const decoded = jwt.verify(token, process.env.APP_JWT_SECRET as string);
-      const { title, description, rating, genre, posterUri, backdropUri, trailerUri, releaseDate } = req.body;
+      const { imdbId, title, originalTitle, overview, voteCount, voteAverage, budget, genre, popularity, revenue, runtime, spokenLang, originalLanguage, homepageUri, status, tagline, posterUri, backdropUri, trailerUri, releaseDate } =
+        req.body;
 
-      const newMovie = await movieService.createMovie(title, description, rating, genre, posterUri, backdropUri, trailerUri, releaseDate);
+      const newMovie = await movieService.createMovie(
+        imdbId,
+        title,
+        originalTitle,
+        overview,
+        voteCount,
+        voteAverage,
+        budget,
+        genre,
+        popularity,
+        revenue,
+        runtime,
+        spokenLang,
+        originalLanguage,
+        homepageUri,
+        status,
+        tagline,
+        posterUri,
+        backdropUri,
+        trailerUri,
+        releaseDate
+      );
 
       res.status(201).json({
         status: true,
@@ -112,9 +150,30 @@ const movieController = {
 
       const decoded = jwt.verify(token, process.env.APP_JWT_SECRET as string);
       const { id } = req.params;
-      const { title, description, rating, genre, posterUri, backdropUri, trailerUri, releaseDate } = req.body;
+      const { title, originalTitle, overview, voteCount, voteAverage, budget, genre, popularity, revenue, runtime, spokenLang, originalLanguage, homepageUri, status, tagline, posterUri, backdropUri, trailerUri, releaseDate } = req.body;
 
-      const updatedMovie = await movieService.updateMovie(id, title, description, rating, genre, posterUri, backdropUri, trailerUri, releaseDate);
+      const updatedMovie = await movieService.updateMovie(
+        id,
+        title,
+        originalTitle,
+        overview,
+        voteCount,
+        voteAverage,
+        budget,
+        genre,
+        popularity,
+        revenue,
+        runtime,
+        spokenLang,
+        originalLanguage,
+        homepageUri,
+        status,
+        tagline,
+        posterUri,
+        backdropUri,
+        trailerUri,
+        releaseDate
+      );
       res.status(200).json({
         status: true,
         statusCode: res.statusCode,

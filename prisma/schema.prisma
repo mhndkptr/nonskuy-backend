@@ -27,10 +27,22 @@ model User {
 
 model Movie {
   id          String   @id @default(cuid())
+  imdbId      String
   title       String
-  description String?   @db.Text
-  rating      Float?   
-  genre       String    
+  originalTitle String
+  overview String?   @db.Text
+  voteCount      Int?   
+  voteAverage      Float?   
+  budget      Float?
+  genre       String  @db.Text   
+  popularity  Float?
+  revenue     Float?
+  runtime     Int?
+  spokenLang  String?   @db.Text
+  originalLanguage String?
+  homepageUri    String
+  status      String?
+  tagline     String?   @db.Text
   posterUri   String?
   backdropUri String?
   trailerUri  String?   

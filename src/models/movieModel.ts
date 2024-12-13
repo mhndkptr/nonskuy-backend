@@ -12,7 +12,28 @@ const Movie = {
       where: { id: id },
     });
   },
-  create: async (data: { title: string; description: string; rating: number; genre: string; posterUri: string; backdropUri: string; trailerUri: string; releaseDate: Date }) => {
+  create: async (data: {
+    imdbId: string;
+    title: string;
+    originalTitle: string;
+    overview?: string | null; // Optional
+    voteCount?: number | null; // Optional
+    voteAverage?: number | null; // Optional
+    budget?: number | null; // Optional
+    genre: string;
+    popularity?: number | null; // Optional
+    revenue?: number | null; // Optional
+    runtime?: number | null; // Optional
+    spokenLang?: string | null; // Optional
+    originalLanguage?: string | null; // Optional
+    homepageUri: string;
+    status?: string | null; // Optional
+    tagline?: string | null; // Optional
+    posterUri?: string | null; // Optional
+    backdropUri?: string | null; // Optional
+    trailerUri?: string | null; // Optional
+    releaseDate: Date;
+  }) => {
     return await prisma.movie.create({ data });
   },
   update: async (id: string, data: Partial<IMovie>) => {
