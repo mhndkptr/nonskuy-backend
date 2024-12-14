@@ -247,7 +247,7 @@ const movieController = {
       const { query, totalRecordUse } = req.body;
 
       const option = {
-        totalRecordUse: totalRecordUse,
+        totalRecordUse: parseInt(totalRecordUse),
       };
       const { analytics, results } = await movieService.searchMovie(query, option);
       res.status(200).json({
