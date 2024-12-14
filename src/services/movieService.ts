@@ -380,8 +380,9 @@ const movieService = {
 
       const analytics = {
         option,
-        results: {
-          linear: {
+        results: [
+          {
+            algorithm: "linear",
             iterative: {
               executionTime: 0,
               totalRecord: 0,
@@ -393,7 +394,8 @@ const movieService = {
               complexityClass: "linear",
             },
           },
-          binary: {
+          {
+            algorithm: "binary",
             iterative: {
               executionTime: 0,
               totalRecord: 0,
@@ -405,7 +407,8 @@ const movieService = {
               complexityClass: "logarithmic",
             },
           },
-          jump: {
+          {
+            algorithm: "jump",
             iterative: {
               executionTime: 0,
               totalRecord: 0,
@@ -417,39 +420,39 @@ const movieService = {
               complexityClass: "sqrt(n)",
             },
           },
-        },
+        ],
       };
 
       // Measure execution time and count results for each algorithm
       const startLinearIterative = performance.now();
       const linearIterativeResults = linearSearchIterative(movies, query);
-      analytics.results.linear.iterative.executionTime = (performance.now() - startLinearIterative) / 1000;
-      analytics.results.linear.iterative.totalRecord = linearIterativeResults.length;
+      analytics.results[0].iterative.executionTime = (performance.now() - startLinearIterative) / 1000;
+      analytics.results[0].iterative.totalRecord = linearIterativeResults.length;
 
       const startLinearRecursive = performance.now();
       const linearRecursiveResults = linearSearchRecursive(movies, query);
-      analytics.results.linear.recursive.executionTime = (performance.now() - startLinearRecursive) / 1000;
-      analytics.results.linear.recursive.totalRecord = linearRecursiveResults.length;
+      analytics.results[0].recursive.executionTime = (performance.now() - startLinearRecursive) / 1000;
+      analytics.results[0].recursive.totalRecord = linearRecursiveResults.length;
 
       const startBinaryIterative = performance.now();
       const binaryIterativeResults = binarySearchIterative(movies, query);
-      analytics.results.binary.iterative.executionTime = (performance.now() - startBinaryIterative) / 1000;
-      analytics.results.binary.iterative.totalRecord = binaryIterativeResults.length;
+      analytics.results[1].iterative.executionTime = (performance.now() - startBinaryIterative) / 1000;
+      analytics.results[1].iterative.totalRecord = binaryIterativeResults.length;
 
       const startBinaryRecursive = performance.now();
       const binaryRecursiveResults = binarySearchRecursive(movies, query);
-      analytics.results.binary.recursive.executionTime = (performance.now() - startBinaryRecursive) / 1000;
-      analytics.results.binary.recursive.totalRecord = binaryRecursiveResults.length;
+      analytics.results[1].recursive.executionTime = (performance.now() - startBinaryRecursive) / 1000;
+      analytics.results[1].recursive.totalRecord = binaryRecursiveResults.length;
 
       const startJumpIterative = performance.now();
       const jumpIterativeResults = jumpSearchIterative(movies, query);
-      analytics.results.jump.iterative.executionTime = (performance.now() - startJumpIterative) / 1000;
-      analytics.results.jump.iterative.totalRecord = jumpIterativeResults.length;
+      analytics.results[2].iterative.executionTime = (performance.now() - startJumpIterative) / 1000;
+      analytics.results[2].iterative.totalRecord = jumpIterativeResults.length;
 
       const startJumpRecursive = performance.now();
       const jumpRecursiveResults = jumpSearchRecursive(movies, query, step);
-      analytics.results.jump.recursive.executionTime = (performance.now() - startJumpRecursive) / 1000;
-      analytics.results.jump.recursive.totalRecord = jumpRecursiveResults.length;
+      analytics.results[2].recursive.executionTime = (performance.now() - startJumpRecursive) / 1000;
+      analytics.results[2].recursive.totalRecord = jumpRecursiveResults.length;
 
       return { analytics, linearIterativeResults };
     };
