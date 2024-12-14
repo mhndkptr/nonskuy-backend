@@ -244,8 +244,12 @@ const movieController = {
 
   search: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { query } = req.body;
-      const { analytics, results } = await movieService.searchMovie(query);
+      const { query, totalRecordUse } = req.body;
+
+      const option = {
+        totalRecordUse: totalRecordUse,
+      };
+      const { analytics, results } = await movieService.searchMovie(query, option);
       res.status(200).json({
         status: true,
         statusCode: res.statusCode,

@@ -237,8 +237,8 @@ const movieService = {
     await Movie.delete(id);
   },
 
-  searchMovie: async (query: string) => {
-    const { error } = searchMovieSchema.validate({ query });
+  searchMovie: async (query: string, option: { totalRecordUse: number }) => {
+    const { error } = searchMovieSchema.validate({ query, option });
 
     if (error) {
       throw new ValidationError(error.details[0].message);
@@ -454,9 +454,6 @@ const movieService = {
       return { analytics, linearIterativeResults };
     };
 
-    const option = {
-      totalRecordUse: 3000,
-    };
     const movies = await prisma.movie.findMany({
       take: option.totalRecordUse,
     });
