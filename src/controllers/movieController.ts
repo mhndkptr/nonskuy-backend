@@ -250,12 +250,18 @@ const movieController = {
         totalRecordUse: parseInt(totalRecordUse),
       };
       const { analytics, results } = await movieService.searchMovie(query, option);
+      const formattedMovies = results.map((movie) => ({
+        ...movie,
+        genre: JSON.parse(movie.genre),
+        spokenLang: movie.spokenLang ? JSON.parse(movie.spokenLang) : [],
+      }));
+
       res.status(200).json({
         status: true,
         statusCode: res.statusCode,
         message: "Search Success",
         data: {
-          movies: results,
+          movies: formattedMovies,
           analytics: analytics,
         },
       });
