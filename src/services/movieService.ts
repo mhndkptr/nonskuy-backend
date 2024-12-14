@@ -244,7 +244,8 @@ const movieService = {
       throw new ValidationError(error.details[0].message);
     }
 
-    const linearSearch = (movies: any[], searchTerm: string) => {
+    // Linear Search Iterative
+    const linearSearchIterative = (movies: any[], searchTerm: string) => {
       const results = [];
       for (const movie of movies) {
         if (movie.title.toLowerCase().includes(searchTerm.toLowerCase())) {
@@ -254,51 +255,17 @@ const movieService = {
       return results;
     };
 
-    // const binarySearch = (movies: any[], searchTerm: string) => {
-    //   let left = 0;
-    //   let right = movies.length - 1;
-    //   const results = [];
+    // Linear Search Recursive
+    const linearSearchRecursive = (movies: any[], searchTerm: string, index = 0, results: any[] = []) => {
+      if (index >= movies.length) return results;
+      if (movies[index].title.toLowerCase().includes(searchTerm.toLowerCase())) {
+        results.push(movies[index]);
+      }
+      return linearSearchRecursive(movies, searchTerm, index + 1, results);
+    };
 
-    //   while (left <= right) {
-    //     const mid = Math.floor((left + right) / 2);
-    //     const movie = movies[mid];
-
-    //     if (movie.title.toLowerCase().includes(searchTerm.toLowerCase())) {
-    //       results.push(movie);
-    //       break;
-    //     } else if (movie.title.toLowerCase() < searchTerm.toLowerCase()) {
-    //       left = mid + 1;
-    //     } else {
-    //       right = mid - 1;
-    //     }
-    //   }
-    //   return results;
-    // };
-
-    // const jumpSearch = (movies: any[], searchTerm: string) => {
-    //   const n = movies.length;
-    //   let step = Math.floor(Math.sqrt(n));
-    //   let prev = 0;
-
-    //   while (movies[Math.min(step, n) - 1].title.toLowerCase() < searchTerm.toLowerCase()) {
-    //     prev = step;
-    //     step += Math.floor(Math.sqrt(n));
-    //     if (prev >= n) return [];
-    //   }
-
-    //   while (movies[prev].title.toLowerCase() < searchTerm.toLowerCase()) {
-    //     prev++;
-    //     if (prev === Math.min(step, n)) return [];
-    //   }
-
-    //   if (movies[prev].title.toLowerCase().includes(searchTerm.toLowerCase())) {
-    //     return [movies[prev]];
-    //   }
-
-    //   return [];
-    // };
-
-    const binarySearch = (movies: any[], searchTerm: string) => {
+    // Binary Search Iterative
+    const binarySearchIterative = (movies: any[], searchTerm: string) => {
       let left = 0;
       let right = movies.length - 1;
       const results = [];
@@ -310,92 +277,198 @@ const movieService = {
         if (movie.title.toLowerCase().includes(searchTerm.toLowerCase())) {
           results.push(movie);
 
-          // Mencari kemungkinan duplikat di sebelah kiri
+          // Check matches on the left side
           let leftIndex = mid - 1;
           while (leftIndex >= 0 && movies[leftIndex].title.toLowerCase().includes(searchTerm.toLowerCase())) {
             results.push(movies[leftIndex]);
             leftIndex--;
           }
 
-          // Mencari kemungkinan duplikat di sebelah kanan
+          // Check matches on the right side
           let rightIndex = mid + 1;
           while (rightIndex < movies.length && movies[rightIndex].title.toLowerCase().includes(searchTerm.toLowerCase())) {
             results.push(movies[rightIndex]);
             rightIndex++;
           }
-          break; // Keluar dari loop setelah menemukan semua hasil
+
+          break; // Stop searching after finding all matches in this block
         } else if (movie.title.toLowerCase() < searchTerm.toLowerCase()) {
-          left = mid + 1;
+          left = mid + 1; // Narrow down to the right side
         } else {
-          right = mid - 1;
+          right = mid - 1; // Narrow down to the left side
         }
       }
+
       return results;
     };
 
-    const jumpSearch = (movies: any[], searchTerm: string) => {
+    // Binary Search Recursive
+    const binarySearchRecursive = (movies: any[], searchTerm: string, left = 0, right = movies.length - 1, results: any[] = []): any[] => {
+      if (left > right) return results;
+      const mid = Math.floor((left + right) / 2);
+      const movie = movies[mid];
+
+      if (movie.title.toLowerCase().includes(searchTerm.toLowerCase())) {
+        results.push(movie);
+
+        // Check matches on the left side
+        let leftIndex = mid - 1;
+        while (leftIndex >= 0 && movies[leftIndex].title.toLowerCase().includes(searchTerm.toLowerCase())) {
+          results.push(movies[leftIndex]);
+          leftIndex--;
+        }
+
+        // Check matches on the right side
+        let rightIndex = mid + 1;
+        while (rightIndex < movies.length && movies[rightIndex].title.toLowerCase().includes(searchTerm.toLowerCase())) {
+          results.push(movies[rightIndex]);
+          rightIndex++;
+        }
+
+        return results;
+      } else if (movie.title.toLowerCase() < searchTerm.toLowerCase()) {
+        return binarySearchRecursive(movies, searchTerm, mid + 1, right, results);
+      } else {
+        return binarySearchRecursive(movies, searchTerm, left, mid - 1, results);
+      }
+    };
+
+    // Jump Search Iterative
+    const jumpSearchIterative = (movies: any[], searchTerm: string) => {
       const n = movies.length;
-      let step = Math.floor(Math.sqrt(n));
+      const step = Math.floor(Math.sqrt(n));
       let prev = 0;
-      const results = [];
+      const results: any[] = [];
 
-      // Mencari blok yang mungkin mengandung searchTerm
-      while (movies[Math.min(step, n) - 1].title.toLowerCase() < searchTerm.toLowerCase()) {
-        prev = step;
-        step += Math.floor(Math.sqrt(n));
-        if (prev >= n) return [];
+      while (prev < n && movies[Math.min(prev + step, n) - 1].title.toLowerCase() < searchTerm.toLowerCase()) {
+        prev += step;
+        if (prev >= n) return results; // Stop if step exceeds array length
       }
 
-      // Melakukan pencarian linear di dalam blok
-      while (movies[prev].title.toLowerCase() < searchTerm.toLowerCase()) {
-        prev++;
-        if (prev === Math.min(step, n)) return [];
-      }
-
-      // Mencari semua film yang cocok
-      while (prev < n && movies[prev].title.toLowerCase().includes(searchTerm.toLowerCase())) {
-        results.push(movies[prev]);
-        prev++;
+      // Linear search within the block
+      for (let i = prev; i < Math.min(prev + step, n); i++) {
+        if (movies[i].title.toLowerCase().includes(searchTerm.toLowerCase())) {
+          results.push(movies[i]);
+        }
       }
 
       return results;
     };
 
-    const movies = await Movie.findAll();
+    // Jump Search Recursive
+    const jumpSearchRecursive = (movies: any[], searchTerm: string, step: number, prev = 0, results: any[] = []): any[] => {
+      if (prev >= movies.length) return results;
 
-    movies.sort((a, b) => a.title.localeCompare(b.title));
+      const nextStep = Math.min(prev + step, movies.length);
 
-    const startLinear = performance.now();
-    const linearResults = linearSearch(movies, query);
-    const endLinear = performance.now();
+      if (movies[nextStep - 1].title.toLowerCase() < searchTerm.toLowerCase()) {
+        return jumpSearchRecursive(movies, searchTerm, step, nextStep, results);
+      }
 
-    const startBinary = performance.now();
-    const binaryResults = binarySearch(movies, query);
-    const endBinary = performance.now();
+      for (let i = prev; i < nextStep; i++) {
+        if (movies[i].title.toLowerCase().includes(searchTerm.toLowerCase())) {
+          results.push(movies[i]);
+        }
+      }
 
-    const startJump = performance.now();
-    const jumpResults = jumpSearch(movies, query);
-    const endJump = performance.now();
-
-    console.log(binaryResults);
-    console.log(jumpResults);
-
-    const analytics = {
-      linear: {
-        executionTime: (endLinear - startLinear) / 1000,
-        totalRecord: linearResults.length,
-      },
-      binary: {
-        executionTime: (endBinary - startBinary) / 1000,
-        totalRecord: binaryResults.length,
-      },
-      jump: {
-        executionTime: (endJump - startJump) / 1000,
-        totalRecord: jumpResults.length,
-      },
+      return results;
     };
 
-    return { analytics: analytics, results: linearResults };
+    // Main function for analytics
+    const analyzeSearchAlgorithms = (movies: any[], query: string, option: { totalRecordUse: number }) => {
+      const step = Math.floor(Math.sqrt(movies.length));
+
+      const analytics = {
+        option,
+        results: {
+          linear: {
+            iterative: {
+              executionTime: 0,
+              totalRecord: 0,
+              complexityClass: "linear",
+            },
+            recursive: {
+              executionTime: 0,
+              totalRecord: 0,
+              complexityClass: "linear",
+            },
+          },
+          binary: {
+            iterative: {
+              executionTime: 0,
+              totalRecord: 0,
+              complexityClass: "logarithmic",
+            },
+            recursive: {
+              executionTime: 0,
+              totalRecord: 0,
+              complexityClass: "logarithmic",
+            },
+          },
+          jump: {
+            iterative: {
+              executionTime: 0,
+              totalRecord: 0,
+              complexityClass: "sqrt(n)",
+            },
+            recursive: {
+              executionTime: 0,
+              totalRecord: 0,
+              complexityClass: "sqrt(n)",
+            },
+          },
+        },
+      };
+
+      // Measure execution time and count results for each algorithm
+      const startLinearIterative = performance.now();
+      const linearIterativeResults = linearSearchIterative(movies, query);
+      analytics.results.linear.iterative.executionTime = (performance.now() - startLinearIterative) / 1000;
+      analytics.results.linear.iterative.totalRecord = linearIterativeResults.length;
+
+      const startLinearRecursive = performance.now();
+      const linearRecursiveResults = linearSearchRecursive(movies, query);
+      analytics.results.linear.recursive.executionTime = (performance.now() - startLinearRecursive) / 1000;
+      analytics.results.linear.recursive.totalRecord = linearRecursiveResults.length;
+
+      const startBinaryIterative = performance.now();
+      const binaryIterativeResults = binarySearchIterative(movies, query);
+      analytics.results.binary.iterative.executionTime = (performance.now() - startBinaryIterative) / 1000;
+      analytics.results.binary.iterative.totalRecord = binaryIterativeResults.length;
+
+      const startBinaryRecursive = performance.now();
+      const binaryRecursiveResults = binarySearchRecursive(movies, query);
+      analytics.results.binary.recursive.executionTime = (performance.now() - startBinaryRecursive) / 1000;
+      analytics.results.binary.recursive.totalRecord = binaryRecursiveResults.length;
+
+      const startJumpIterative = performance.now();
+      const jumpIterativeResults = jumpSearchIterative(movies, query);
+      analytics.results.jump.iterative.executionTime = (performance.now() - startJumpIterative) / 1000;
+      analytics.results.jump.iterative.totalRecord = jumpIterativeResults.length;
+
+      const startJumpRecursive = performance.now();
+      const jumpRecursiveResults = jumpSearchRecursive(movies, query, step);
+      analytics.results.jump.recursive.executionTime = (performance.now() - startJumpRecursive) / 1000;
+      analytics.results.jump.recursive.totalRecord = jumpRecursiveResults.length;
+
+      return { analytics, linearIterativeResults };
+    };
+
+    const option = {
+      totalRecordUse: 3000,
+    };
+    const movies = await prisma.movie.findMany({
+      take: option.totalRecordUse,
+    });
+
+    movies.sort((a, b) => {
+      const titleA = a.title || "";
+      const titleB = b.title || "";
+      return titleA.localeCompare(titleB);
+    });
+
+    const { analytics, linearIterativeResults } = analyzeSearchAlgorithms(movies, query, option);
+    return { analytics: analytics, results: linearIterativeResults };
   },
 };
 
