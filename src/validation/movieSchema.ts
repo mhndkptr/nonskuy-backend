@@ -51,4 +51,7 @@ export const movieIdSchema = Joi.object({
 
 export const searchMovieSchema = Joi.object({
   query: Joi.string().required(), // Query pencarian
+  option: Joi.object({
+    totalRecordUse: Joi.number().integer().min(0).required(), // Validasi untuk totalRecordUse
+  }).required(), // Pastikan option juga diperlukan
 });
