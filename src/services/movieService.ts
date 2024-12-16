@@ -470,6 +470,37 @@ const movieService = {
     const { analytics, linearIterativeResults } = analyzeSearchAlgorithms(movies, query, option);
     return { analytics: analytics, results: linearIterativeResults };
   },
+
+  getTrendingMovies: async (limit: number) => {
+    const trendingMovies = await prisma.movie.findMany({
+      orderBy: {
+        popularity: "desc",
+      },
+      take: limit,
+    });
+
+    return trendingMovies;
+  },
+
+  getRelatedMovies: async (id: string) => {
+    const movie = await Movie.findById(id);
+
+    if (!movie) {
+      throw new NotFoundError("Movie not found");
+    }
+
+    const relatedMovies = await prisma.movie.findMany({
+      where: {
+        id: { not: id },
+        genre: {
+          contains: movie.genre[0],
+        },
+      },
+      take: 10,
+    });
+
+    return relatedMovies;
+  },
 };
 
 export default movieService;
