@@ -47,12 +47,18 @@ const movieController = {
     try {
       const { id } = req.params;
       const movie = await movieService.getMovie(id);
+
+      const formattedMovies = {
+        ...movie,
+        genre: JSON.parse(movie.genre),
+        spokenLang: movie.spokenLang ? JSON.parse(movie.spokenLang) : [],
+      };
       res.status(200).json({
         status: true,
         statusCode: res.statusCode,
         message: "Movie successfully found",
         data: {
-          movie: movie,
+          movie: formattedMovies,
         },
       });
     } catch (error: any) {
