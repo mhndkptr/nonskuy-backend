@@ -3,6 +3,7 @@ import movieController from "../controllers/movieController";
 
 const router = express.Router();
 
+router.get("/trending", movieController.getTrending);
 router.get("/", movieController.index);
 router.get("/:id", movieController.show);
 router.put("/:id", movieController.update);

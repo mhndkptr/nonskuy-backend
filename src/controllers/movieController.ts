@@ -277,6 +277,38 @@ const movieController = {
       }
     }
   },
+
+  getTrending: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      const trendingMovies = await movieService.getTrendingMovies(limit);
+
+      const formattedMovies = trendingMovies.map((movie) => ({
+        ...movie,
+        genre: JSON.parse(movie.genre),
+        spokenLang: movie.spokenLang ? JSON.parse(movie.spokenLang) : [],
+      }));
+
+      res.status(200).json({
+        status: true,
+        statusCode: res.statusCode,
+        message: "Trending movies successfully found",
+        data: {
+          movies: formattedMovies,
+        },
+      });
+    } catch (error: any) {
+      if (error.statusCode) {
+        res.status(error.statusCode).json({
+          status: false,
+          statusCode: error.statusCode,
+          message: error.message,
+        });
+      } else {
+        next(error);
+      }
+    }
+  },
 };
 
 export default movieController;

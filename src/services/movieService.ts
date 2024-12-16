@@ -470,6 +470,17 @@ const movieService = {
     const { analytics, linearIterativeResults } = analyzeSearchAlgorithms(movies, query, option);
     return { analytics: analytics, results: linearIterativeResults };
   },
+
+  getTrendingMovies: async (limit: number) => {
+    const trendingMovies = await prisma.movie.findMany({
+      orderBy: {
+        popularity: "desc",
+      },
+      take: limit,
+    });
+
+    return trendingMovies;
+  },
 };
 
 export default movieService;
