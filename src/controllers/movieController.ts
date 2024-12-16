@@ -309,6 +309,38 @@ const movieController = {
       }
     }
   },
+
+  getRelated: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const relatedMovies = await movieService.getRelatedMovies(id);
+
+      const formattedMovies = relatedMovies.map((movie) => ({
+        ...movie,
+        genre: JSON.parse(movie.genre),
+        spokenLang: movie.spokenLang ? JSON.parse(movie.spokenLang) : [],
+      }));
+
+      res.status(200).json({
+        status: true,
+        statusCode: res.statusCode,
+        message: "Related movies successfully found",
+        data: {
+          movies: formattedMovies,
+        },
+      });
+    } catch (error: any) {
+      if (error.statusCode) {
+        res.status(error.statusCode).json({
+          status: false,
+          statusCode: error.statusCode,
+          message: error.message,
+        });
+      } else {
+        next(error);
+      }
+    }
+  },
 };
 
 export default movieController;

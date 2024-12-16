@@ -481,6 +481,26 @@ const movieService = {
 
     return trendingMovies;
   },
+
+  getRelatedMovies: async (id: string) => {
+    const movie = await Movie.findById(id);
+
+    if (!movie) {
+      throw new NotFoundError("Movie not found");
+    }
+
+    const relatedMovies = await prisma.movie.findMany({
+      where: {
+        id: { not: id },
+        genre: {
+          contains: movie.genre[0],
+        },
+      },
+      take: 10,
+    });
+
+    return relatedMovies;
+  },
 };
 
 export default movieService;
