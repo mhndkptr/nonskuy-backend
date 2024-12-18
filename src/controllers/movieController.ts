@@ -250,13 +250,34 @@ const movieController = {
 
   search: async (req: Request, res: Response, next: NextFunction) => {
     try {
+      res.status(200).json({
+        status: true,
+        statusCode: res.statusCode,
+        message: "Search success",
+        data: {},
+      });
+    } catch (error: any) {
+      if (error.statusCode) {
+        res.status(error.statusCode).json({
+          status: false,
+          statusCode: error.statusCode,
+          message: error.message,
+        });
+      } else {
+        next(error);
+      }
+    }
+  },
+
+  searchAnalytics: async (req: Request, res: Response, next: NextFunction) => {
+    try {
       const { query, totalRecordUse } = req.body;
 
       const option = {
         totalRecordUse: parseInt(totalRecordUse),
       };
-      const { analytics, results } = await movieService.searchMovie(query, option);
-      const formattedMovies = results.map((movie) => ({
+      const { analytics, results } = await movieService.searchWithAnalyticsMovie(query, option);
+      const formattedMovies = results.map((movie: any) => ({
         ...movie,
         genre: JSON.parse(movie.genre),
         spokenLang: movie.spokenLang ? JSON.parse(movie.spokenLang) : [],
@@ -265,7 +286,7 @@ const movieController = {
       res.status(200).json({
         status: true,
         statusCode: res.statusCode,
-        message: "Search Success",
+        message: "Search success with analytics",
         data: {
           movies: formattedMovies,
           analytics: analytics,
