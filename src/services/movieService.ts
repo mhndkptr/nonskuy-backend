@@ -503,12 +503,18 @@ const movieService = {
       throw new NotFoundError("Movie not found");
     }
 
+    const titleKeywords = movie.title.split(" ");
+
     const relatedMovies = await prisma.movie.findMany({
       where: {
         id: { not: id },
-        genre: {
-          contains: movie.genre[0],
-        },
+        OR: [
+          {
+            genre: {
+              contains: movie.genre[0],
+            },
+          },
+        ],
       },
       take: 10,
     });
