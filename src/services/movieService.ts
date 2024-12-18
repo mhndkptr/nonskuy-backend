@@ -237,7 +237,7 @@ const movieService = {
     await Movie.delete(id);
   },
 
-  searchMovie: async (query: string, option: { totalRecordUse: number }) => {
+  searchWithAnalyticsMovie: async (query: string, option: { totalRecordUse: number }) => {
     const { error } = searchMovieSchema.validate({ query, option });
 
     if (error) {
@@ -375,7 +375,7 @@ const movieService = {
     };
 
     // Main function for analytics
-    const analyzeSearchAlgorithms = (movies: any[], query: string, option: { totalRecordUse: number }) => {
+    const analyzeSearchAlgorithms = (movies: any[], query: string, option: { totalRecordUse: number }, repetitions: number = 5) => {
       const step = Math.floor(Math.sqrt(movies.length));
 
       const analytics = {
@@ -423,38 +423,52 @@ const movieService = {
         ],
       };
 
-      // Measure execution time and count results for each algorithm
-      const startLinearIterative = performance.now();
-      const linearIterativeResults = linearSearchIterative(movies, query);
-      analytics.results[0].iterative.executionTime = (performance.now() - startLinearIterative) / 1000;
-      analytics.results[0].iterative.totalRecord = linearIterativeResults.length;
+      // Helper function for measuring execution time
+      const measureExecutionTime = (fn: () => any) => {
+        const start = performance.now();
+        const result = fn();
+        const executionTime = (performance.now() - start) / 1000; // Convert to seconds
+        return { result, executionTime };
+      };
 
-      const startLinearRecursive = performance.now();
-      const linearRecursiveResults = linearSearchRecursive(movies, query);
-      analytics.results[0].recursive.executionTime = (performance.now() - startLinearRecursive) / 1000;
-      analytics.results[0].recursive.totalRecord = linearRecursiveResults.length;
+      // Helper function to calculate average time over multiple repetitions
+      const averageExecutionTime = (fn: () => any) => {
+        let totalExecutionTime = 0;
+        let results: any[] = [];
+        for (let i = 0; i < repetitions; i++) {
+          const { result, executionTime } = measureExecutionTime(fn);
+          totalExecutionTime += executionTime;
+          results = result; // Assume results are consistent across runs
+        }
+        return { averageTime: totalExecutionTime / repetitions, results };
+      };
 
-      const startBinaryIterative = performance.now();
-      const binaryIterativeResults = binarySearchIterative(movies, query);
-      analytics.results[1].iterative.executionTime = (performance.now() - startBinaryIterative) / 1000;
-      analytics.results[1].iterative.totalRecord = binaryIterativeResults.length;
+      // Measure execution time and count results
+      const linearIterative = averageExecutionTime(() => linearSearchIterative(movies, query));
+      analytics.results[0].iterative.executionTime = linearIterative.averageTime;
+      analytics.results[0].iterative.totalRecord = linearIterative.results.length;
 
-      const startBinaryRecursive = performance.now();
-      const binaryRecursiveResults = binarySearchRecursive(movies, query);
-      analytics.results[1].recursive.executionTime = (performance.now() - startBinaryRecursive) / 1000;
-      analytics.results[1].recursive.totalRecord = binaryRecursiveResults.length;
+      const linearRecursive = averageExecutionTime(() => linearSearchRecursive(movies, query));
+      analytics.results[0].recursive.executionTime = linearRecursive.averageTime;
+      analytics.results[0].recursive.totalRecord = linearRecursive.results.length;
 
-      const startJumpIterative = performance.now();
-      const jumpIterativeResults = jumpSearchIterative(movies, query);
-      analytics.results[2].iterative.executionTime = (performance.now() - startJumpIterative) / 1000;
-      analytics.results[2].iterative.totalRecord = jumpIterativeResults.length;
+      const binaryIterative = averageExecutionTime(() => binarySearchIterative(movies, query));
+      analytics.results[1].iterative.executionTime = binaryIterative.averageTime;
+      analytics.results[1].iterative.totalRecord = binaryIterative.results.length;
 
-      const startJumpRecursive = performance.now();
-      const jumpRecursiveResults = jumpSearchRecursive(movies, query, step);
-      analytics.results[2].recursive.executionTime = (performance.now() - startJumpRecursive) / 1000;
-      analytics.results[2].recursive.totalRecord = jumpRecursiveResults.length;
+      const binaryRecursive = averageExecutionTime(() => binarySearchRecursive(movies, query));
+      analytics.results[1].recursive.executionTime = binaryRecursive.averageTime;
+      analytics.results[1].recursive.totalRecord = binaryRecursive.results.length;
 
-      return { analytics, linearIterativeResults };
+      const jumpIterative = averageExecutionTime(() => jumpSearchIterative(movies, query));
+      analytics.results[2].iterative.executionTime = jumpIterative.averageTime;
+      analytics.results[2].iterative.totalRecord = jumpIterative.results.length;
+
+      const jumpRecursive = averageExecutionTime(() => jumpSearchRecursive(movies, query, step));
+      analytics.results[2].recursive.executionTime = jumpRecursive.averageTime;
+      analytics.results[2].recursive.totalRecord = jumpRecursive.results.length;
+
+      return { analytics, linearIterativeResults: linearIterative.results };
     };
 
     const movies = await prisma.movie.findMany({
