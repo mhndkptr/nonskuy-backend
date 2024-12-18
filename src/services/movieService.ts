@@ -454,6 +454,7 @@ const movieService = {
         totalData,
         totalExecutionTimeData,
         interval,
+        totalRecordUse: option.totalRecordUse,
       },
       result: executionTimes,
     };
