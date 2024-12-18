@@ -601,20 +601,3 @@ const measureExecutionTime = (fn: () => any) => {
   const executionTime = (performance.now() - start) / 1000; // Convert to seconds
   return { result, executionTime };
 };
-
-const analytics = {
-  option: {
-    query: "some query",
-    inputSize: 107,
-    totalData: 11, // 107 / 10 = 11
-    interval: 10, // every interval 10. ex: 10, 20, 30, 40, 50, 60, ..., 110.
-  },
-  result: {
-    linearIterativeExecutionTime: [0.0022, 0.0023], // total data in this array will be 11 from start index execution time with total data 10
-    linearRecursiveExecutionTime: [0.0022, 0.0023], // total data in this array will be 11 from start index execution time with total data 10
-    binaryIterativeExecutionTime: [0.0022, 0.0023], // total data in this array will be 11 from start index execution time with total data 10
-    binaryRecursiveExecutionTime: [0.0022, 0.0023], // total data in this array will be 11 from start index execution time with total data 10
-    jumpIterativeExecutionTime: [0.0022, 0.0023], // total data in this array will be 11 from start index execution time with total data 10
-    jumpRecursiveExecutionTime: [0.0022, 0.0023], // total data in this array will be 11 from start index execution time with total data 10
-  },
-};
