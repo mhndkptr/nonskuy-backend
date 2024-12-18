@@ -24,3 +24,12 @@ export interface IMovie {
   updatedAt: Date; // Tanggal diperbarui
   deletedAt?: Date | null; // Tanggal dihapus (optional untuk soft delete)
 }
+
+export interface IExecutionTimes {
+  linearIterativeExecutionTime: number[];
+  linearRecursiveExecutionTime: number[];
+  binaryIterativeExecutionTime: number[];
+  binaryRecursiveExecutionTime: number[];
+  jumpIterativeExecutionTime: number[];
+  jumpRecursiveExecutionTime: number[];
+}

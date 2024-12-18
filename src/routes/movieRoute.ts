@@ -11,6 +11,7 @@ router.put("/:id", movieController.update);
 router.post("/", movieController.store);
 router.post("/search", movieController.search);
 router.post("/search-analytics", movieController.searchAnalytics);
+router.post("/analytics", movieController.getAnalytics);
 router.delete("/:id", movieController.destroy);
 
 export default router;
