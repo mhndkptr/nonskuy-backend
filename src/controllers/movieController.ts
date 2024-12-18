@@ -381,7 +381,9 @@ const movieController = {
         status: true,
         statusCode: res.statusCode,
         message: "Analytics successfully retrieved",
-        data: analytics,
+        data: {
+          analytics,
+        },
       });
     } catch (error: any) {
       if (error.statusCode) {
