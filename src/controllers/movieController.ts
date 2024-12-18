@@ -368,6 +368,33 @@ const movieController = {
       }
     }
   },
+
+  getAnalytics: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { query, totalRecordUse } = req.body;
+      const option = {
+        totalRecordUse: parseInt(totalRecordUse),
+      };
+      const analytics = await movieService.getAnalytics(query, option);
+
+      res.status(200).json({
+        status: true,
+        statusCode: res.statusCode,
+        message: "Analytics successfully retrieved",
+        data: analytics,
+      });
+    } catch (error: any) {
+      if (error.statusCode) {
+        res.status(error.statusCode).json({
+          status: false,
+          statusCode: error.statusCode,
+          message: error.message,
+        });
+      } else {
+        next(error);
+      }
+    }
+  },
 };
 
 export default movieController;

@@ -1,6 +1,6 @@
 import Movie from "../models/movieModel";
 import errorHandler from "../middlewares/errorHandler";
-import { IMovie } from "../interfaces/movieInterface";
+import { IExecutionTimes, IMovie } from "../interfaces/movieInterface";
 import { $Enums, PrismaClient } from "@prisma/client";
 import { createMovieSchema, updateMovieSchema, movieIdSchema, searchMovieSchema } from "../validation/movieSchema";
 
@@ -244,136 +244,6 @@ const movieService = {
       throw new ValidationError(error.details[0].message);
     }
 
-    // Linear Search Iterative
-    const linearSearchIterative = (movies: any[], searchTerm: string) => {
-      const results = [];
-      for (const movie of movies) {
-        if (movie.title.toLowerCase().includes(searchTerm.toLowerCase())) {
-          results.push(movie);
-        }
-      }
-      return results;
-    };
-
-    // Linear Search Recursive
-    const linearSearchRecursive = (movies: any[], searchTerm: string, index = 0, results: any[] = []) => {
-      if (index >= movies.length) return results;
-      if (movies[index].title.toLowerCase().includes(searchTerm.toLowerCase())) {
-        results.push(movies[index]);
-      }
-      return linearSearchRecursive(movies, searchTerm, index + 1, results);
-    };
-
-    // Binary Search Iterative
-    const binarySearchIterative = (movies: any[], searchTerm: string) => {
-      let left = 0;
-      let right = movies.length - 1;
-      const results = [];
-
-      while (left <= right) {
-        const mid = Math.floor((left + right) / 2);
-        const movie = movies[mid];
-
-        if (movie.title.toLowerCase().includes(searchTerm.toLowerCase())) {
-          results.push(movie);
-
-          // Check matches on the left side
-          let leftIndex = mid - 1;
-          while (leftIndex >= 0 && movies[leftIndex].title.toLowerCase().includes(searchTerm.toLowerCase())) {
-            results.push(movies[leftIndex]);
-            leftIndex--;
-          }
-
-          // Check matches on the right side
-          let rightIndex = mid + 1;
-          while (rightIndex < movies.length && movies[rightIndex].title.toLowerCase().includes(searchTerm.toLowerCase())) {
-            results.push(movies[rightIndex]);
-            rightIndex++;
-          }
-
-          break; // Stop searching after finding all matches in this block
-        } else if (movie.title.toLowerCase() < searchTerm.toLowerCase()) {
-          left = mid + 1; // Narrow down to the right side
-        } else {
-          right = mid - 1; // Narrow down to the left side
-        }
-      }
-
-      return results;
-    };
-
-    // Binary Search Recursive
-    const binarySearchRecursive = (movies: any[], searchTerm: string, left = 0, right = movies.length - 1, results: any[] = []): any[] => {
-      if (left > right) return results;
-      const mid = Math.floor((left + right) / 2);
-      const movie = movies[mid];
-
-      if (movie.title.toLowerCase().includes(searchTerm.toLowerCase())) {
-        results.push(movie);
-
-        // Check matches on the left side
-        let leftIndex = mid - 1;
-        while (leftIndex >= 0 && movies[leftIndex].title.toLowerCase().includes(searchTerm.toLowerCase())) {
-          results.push(movies[leftIndex]);
-          leftIndex--;
-        }
-
-        // Check matches on the right side
-        let rightIndex = mid + 1;
-        while (rightIndex < movies.length && movies[rightIndex].title.toLowerCase().includes(searchTerm.toLowerCase())) {
-          results.push(movies[rightIndex]);
-          rightIndex++;
-        }
-
-        return results;
-      } else if (movie.title.toLowerCase() < searchTerm.toLowerCase()) {
-        return binarySearchRecursive(movies, searchTerm, mid + 1, right, results);
-      } else {
-        return binarySearchRecursive(movies, searchTerm, left, mid - 1, results);
-      }
-    };
-
-    // Jump Search Iterative
-    const jumpSearchIterative = (movies: any[], searchTerm: string) => {
-      const n = movies.length;
-      const step = Math.floor(Math.sqrt(n));
-      let prev = 0;
-      const results: any[] = [];
-
-      while (prev < n && movies[Math.min(prev + step, n) - 1].title.toLowerCase() < searchTerm.toLowerCase()) {
-        prev += step;
-        if (prev >= n) return results; // Stop if step exceeds array length
-      }
-
-      // Linear search within the block
-      for (let i = prev; i < Math.min(prev + step, n); i++) {
-        if (movies[i].title.toLowerCase().includes(searchTerm.toLowerCase())) {
-          results.push(movies[i]);
-        }
-      }
-
-      return results;
-    };
-
-    // Jump Search Recursive
-    const jumpSearchRecursive = (movies: any[], searchTerm: string, step: number, prev = 0, results: any[] = []): any[] => {
-      if (prev >= movies.length) return results;
-
-      const nextStep = Math.min(prev + step, movies.length);
-
-      if (movies[nextStep - 1].title.toLowerCase() < searchTerm.toLowerCase()) {
-        return jumpSearchRecursive(movies, searchTerm, step, nextStep, results);
-      }
-
-      for (let i = prev; i < nextStep; i++) {
-        if (movies[i].title.toLowerCase().includes(searchTerm.toLowerCase())) {
-          results.push(movies[i]);
-        }
-      }
-
-      return results;
-    };
-
     // Main function for analytics
     const analyzeSearchAlgorithms = (movies: any[], query: string, option: { totalRecordUse: number }, repetitions: number = 5) => {
       const step = Math.floor(Math.sqrt(movies.length));
@@ -421,14 +291,6 @@ const movieService = {
             },
           },
         ],
-      };
-
-      // Helper function for measuring execution time
-      const measureExecutionTime = (fn: () => any) => {
-        const start = performance.now();
-        const result = fn();
-        const executionTime = (performance.now() - start) / 1000; // Convert to seconds
-        return { result, executionTime };
       };
 
       // Helper function to calculate average time over multiple repetitions
@@ -503,18 +365,239 @@ const movieService = {
       throw new NotFoundError("Movie not found");
     }
 
+    const titleKeywords = movie.title.split(" ");
+
     const relatedMovies = await prisma.movie.findMany({
       where: {
         id: { not: id },
-        genre: {
-          contains: movie.genre[0],
-        },
+        OR: [
+          {
+            genre: {
+              contains: movie.genre[0],
+            },
+          },
+        ],
       },
       take: 10,
     });
 
     return relatedMovies;
   },
+
+  getAnalytics: async (query: string, option: { totalRecordUse: number }) => {
+    // Ambil semua film dari database
+    const movies = await prisma.movie.findMany();
+
+    // Hitung total data
+    const totalData = movies.length;
+
+    // Interval
+    const interval = 10;
+
+    const totalExecutionTimeData: number = Math.ceil(option.totalRecordUse / interval);
+
+    // Array untuk menyimpan waktu eksekusi
+    const executionTimes: IExecutionTimes = {
+      linearIterativeExecutionTime: [],
+      linearRecursiveExecutionTime: [],
+      binaryIterativeExecutionTime: [],
+      binaryRecursiveExecutionTime: [],
+      jumpIterativeExecutionTime: [],
+      jumpRecursiveExecutionTime: [],
+    };
+
+    // Menghitung waktu eksekusi untuk setiap interval
+    for (let i = interval; i <= option.totalRecordUse; i += interval) {
+      const currentMovies = movies.slice(0, i); // Ambil subset dari movies
+
+      // Menjalankan pencarian dan mengukur waktu eksekusi
+      const linearIterativeResults = measureExecutionTime(() => linearSearchIterative(currentMovies, query));
+      const linearRecursiveResults = measureExecutionTime(() => linearSearchRecursive(currentMovies, query));
+      const binaryIterativeResults = measureExecutionTime(() => binarySearchIterative(currentMovies, query));
+      const binaryRecursiveResults = measureExecutionTime(() => binarySearchRecursive(currentMovies, query));
+      const jumpIterativeResults = measureExecutionTime(() => jumpSearchIterative(currentMovies, query));
+      const jumpRecursiveResults = measureExecutionTime(() => jumpSearchRecursive(currentMovies, query, Math.floor(Math.sqrt(currentMovies.length))));
+
+      // Menyimpan waktu eksekusi ke dalam array
+      executionTimes.linearIterativeExecutionTime.push(linearIterativeResults.executionTime);
+      executionTimes.linearRecursiveExecutionTime.push(linearRecursiveResults.executionTime);
+      executionTimes.binaryIterativeExecutionTime.push(binaryIterativeResults.executionTime);
+      executionTimes.binaryRecursiveExecutionTime.push(binaryRecursiveResults.executionTime);
+      executionTimes.jumpIterativeExecutionTime.push(jumpIterativeResults.executionTime);
+      executionTimes.jumpRecursiveExecutionTime.push(jumpRecursiveResults.executionTime);
+    }
+
+    if (option.totalRecordUse % interval !== 0) {
+      const currentMovies = movies.slice(0, option.totalRecordUse); // Ambil subset dari movies
+
+      // Menjalankan pencarian dan mengukur waktu eksekusi
+      const linearIterativeResults = measureExecutionTime(() => linearSearchIterative(currentMovies, query));
+      const linearRecursiveResults = measureExecutionTime(() => linearSearchRecursive(currentMovies, query));
+      const binaryIterativeResults = measureExecutionTime(() => binarySearchIterative(currentMovies, query));
+      const binaryRecursiveResults = measureExecutionTime(() => binarySearchRecursive(currentMovies, query));
+      const jumpIterativeResults = measureExecutionTime(() => jumpSearchIterative(currentMovies, query));
+      const jumpRecursiveResults = measureExecutionTime(() => jumpSearchRecursive(currentMovies, query, Math.floor(Math.sqrt(currentMovies.length))));
+
+      // Menyimpan waktu eksekusi ke dalam array
+      executionTimes.linearIterativeExecutionTime.push(linearIterativeResults.executionTime);
+      executionTimes.linearRecursiveExecutionTime.push(linearRecursiveResults.executionTime);
+      executionTimes.binaryIterativeExecutionTime.push(binaryIterativeResults.executionTime);
+      executionTimes.binaryRecursiveExecutionTime.push(binaryRecursiveResults.executionTime);
+      executionTimes.jumpIterativeExecutionTime.push(jumpIterativeResults.executionTime);
+      executionTimes.jumpRecursiveExecutionTime.push(jumpRecursiveResults.executionTime);
+    }
+
+    // Mengembalikan hasil analitik
+    const analytics = {
+      option: {
+        query,
+        totalData,
+        totalExecutionTimeData,
+        interval,
+      },
+      result: executionTimes,
+    };
+
+    return analytics;
+  },
 };
 
 export default movieService;
+
+// Linear Search Iterative
+const linearSearchIterative = (movies: any[], searchTerm: string) => {
+  const results = [];
+  for (const movie of movies) {
+    if (movie.title.toLowerCase().includes(searchTerm.toLowerCase())) {
+      results.push(movie);
+    }
+  }
+  return results;
+};
+
+// Linear Search Recursive
+const linearSearchRecursive = (movies: any[], searchTerm: string, index = 0, results: any[] = []) => {
+  if (index >= movies.length) return results;
+  if (movies[index].title.toLowerCase().includes(searchTerm.toLowerCase())) {
+    results.push(movies[index]);
+  }
+  return linearSearchRecursive(movies, searchTerm, index + 1, results);
+};
+
+// Binary Search Iterative
+const binarySearchIterative = (movies: any[], searchTerm: string) => {
+  let left = 0;
+  let right = movies.length - 1;
+  const results = [];
+
+  while (left <= right) {
+    const mid = Math.floor((left + right) / 2);
+    const movie = movies[mid];
+
+    if (movie.title.toLowerCase().includes(searchTerm.toLowerCase())) {
+      results.push(movie);
+
+      // Check matches on the left side
+      let leftIndex = mid - 1;
+      while (leftIndex >= 0 && movies[leftIndex].title.toLowerCase().includes(searchTerm.toLowerCase())) {
+        results.push(movies[leftIndex]);
+        leftIndex--;
+      }
+
+      // Check matches on the right side
+      let rightIndex = mid + 1;
+      while (rightIndex < movies.length && movies[rightIndex].title.toLowerCase().includes(searchTerm.toLowerCase())) {
+        results.push(movies[rightIndex]);
+        rightIndex++;
+      }
+
+      break; // Stop searching after finding all matches in this block
+    } else if (movie.title.toLowerCase() < searchTerm.toLowerCase()) {
+      left = mid + 1; // Narrow down to the right side
+    } else {
+      right = mid - 1; // Narrow down to the left side
+    }
+  }
+
+  return results;
+};
+
+// Binary Search Recursive
+const binarySearchRecursive = (movies: any[], searchTerm: string, left = 0, right = movies.length - 1, results: any[] = []): any[] => {
+  if (left > right) return results;
+  const mid = Math.floor((left + right) / 2);
+  const movie = movies[mid];
+
+  if (movie.title.toLowerCase().includes(searchTerm.toLowerCase())) {
+    results.push(movie);
+
+    // Check matches on the left side
+    let leftIndex = mid - 1;
+    while (leftIndex >= 0 && movies[leftIndex].title.toLowerCase().includes(searchTerm.toLowerCase())) {
+      results.push(movies[leftIndex]);
+      leftIndex--;
+    }
+
+    // Check matches on the right side
+    let rightIndex = mid + 1;
+    while (rightIndex < movies.length && movies[rightIndex].title.toLowerCase().includes(searchTerm.toLowerCase())) {
+      results.push(movies[rightIndex]);
+      rightIndex++;
+    }
+
+    return results;
+  } else if (movie.title.toLowerCase() < searchTerm.toLowerCase()) {
+    return binarySearchRecursive(movies, searchTerm, mid + 1, right, results);
+  } else {
+    return binarySearchRecursive(movies, searchTerm, left, mid - 1, results);
+  }
+};
+
+// Jump Search Iterative
+const jumpSearchIterative = (movies: any[], searchTerm: string) => {
+  const n = movies.length;
+  const step = Math.floor(Math.sqrt(n));
+  let prev = 0;
+  const results: any[] = [];
+
+  while (prev < n && movies[Math.min(prev + step, n) - 1].title.toLowerCase() < searchTerm.toLowerCase()) {
+    prev += step;
+    if (prev >= n) return results; // Stop if step exceeds array length
+  }
+
+  // Linear search within the block
+  for (let i = prev; i < Math.min(prev + step, n); i++) {
+    if (movies[i].title.toLowerCase().includes(searchTerm.toLowerCase())) {
+      results.push(movies[i]);
+    }
+  }
+
+  return results;
+};
+
+// Jump Search Recursive
+const jumpSearchRecursive = (movies: any[], searchTerm: string, step: number, prev = 0, results: any[] = []): any[] => {
+  if (prev >= movies.length) return results;
+
+  const nextStep = Math.min(prev + step, movies.length);
+
+  if (movies[nextStep - 1].title.toLowerCase() < searchTerm.toLowerCase()) {
+    return jumpSearchRecursive(movies, searchTerm, step, nextStep, results);
+  }
+
+  for (let i = prev; i < nextStep; i++) {
+    if (movies[i].title.toLowerCase().includes(searchTerm.toLowerCase())) {
+      results.push(movies[i]);
+    }
+  }
+
+  return results;
+};
+
+// Helper function for measuring execution time
+const measureExecutionTime = (fn: () => any) => {
+  const start = performance.now();
+  const result = fn();
+  const executionTime = (performance.now() - start) / 1000; // Convert to seconds
+  return { result, executionTime };
+};
