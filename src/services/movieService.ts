@@ -293,40 +293,28 @@ const movieService = {
         ],
       };
 
-      // Helper function to calculate average time over multiple repetitions
-      const averageExecutionTime = (fn: () => any) => {
-        let totalExecutionTime = 0;
-        let results: any[] = [];
-        for (let i = 0; i < repetitions; i++) {
-          const { result, executionTime } = measureExecutionTime(fn);
-          totalExecutionTime += executionTime;
-          results = result; // Assume results are consistent across runs
-        }
-        return { averageTime: totalExecutionTime / repetitions, results };
-      };
-
       // Measure execution time and count results
-      const linearIterative = averageExecutionTime(() => linearSearchIterative(movies, query));
+      const linearIterative = averageExecutionTime(() => linearSearchIterative(movies, query), repetitions);
       analytics.results[0].iterative.executionTime = linearIterative.averageTime;
       analytics.results[0].iterative.totalRecord = linearIterative.results.length;
 
-      const linearRecursive = averageExecutionTime(() => linearSearchRecursive(movies, query));
+      const linearRecursive = averageExecutionTime(() => linearSearchRecursive(movies, query), repetitions);
       analytics.results[0].recursive.executionTime = linearRecursive.averageTime;
       analytics.results[0].recursive.totalRecord = linearRecursive.results.length;
 
-      const binaryIterative = averageExecutionTime(() => binarySearchIterative(movies, query));
+      const binaryIterative = averageExecutionTime(() => binarySearchIterative(movies, query), repetitions);
       analytics.results[1].iterative.executionTime = binaryIterative.averageTime;
       analytics.results[1].iterative.totalRecord = binaryIterative.results.length;
 
-      const binaryRecursive = averageExecutionTime(() => binarySearchRecursive(movies, query));
+      const binaryRecursive = averageExecutionTime(() => binarySearchRecursive(movies, query), repetitions);
       analytics.results[1].recursive.executionTime = binaryRecursive.averageTime;
       analytics.results[1].recursive.totalRecord = binaryRecursive.results.length;
 
-      const jumpIterative = averageExecutionTime(() => jumpSearchIterative(movies, query));
+      const jumpIterative = averageExecutionTime(() => jumpSearchIterative(movies, query), repetitions);
       analytics.results[2].iterative.executionTime = jumpIterative.averageTime;
       analytics.results[2].iterative.totalRecord = jumpIterative.results.length;
 
-      const jumpRecursive = averageExecutionTime(() => jumpSearchRecursive(movies, query, step));
+      const jumpRecursive = averageExecutionTime(() => jumpSearchRecursive(movies, query, step), repetitions);
       analytics.results[2].recursive.executionTime = jumpRecursive.averageTime;
       analytics.results[2].recursive.totalRecord = jumpRecursive.results.length;
 
@@ -396,6 +384,8 @@ const movieService = {
 
     const totalExecutionTimeData: number = Math.ceil(option.totalRecordUse / interval);
 
+    const repetitions = 5;
+
     // Array untuk menyimpan waktu eksekusi
     const executionTimes: IExecutionTimes = {
       linearIterativeExecutionTime: [],
@@ -411,40 +401,40 @@ const movieService = {
       const currentMovies = movies.slice(0, i); // Ambil subset dari movies
 
       // Menjalankan pencarian dan mengukur waktu eksekusi
-      const linearIterativeResults = measureExecutionTime(() => linearSearchIterative(currentMovies, query));
-      const linearRecursiveResults = measureExecutionTime(() => linearSearchRecursive(currentMovies, query));
-      const binaryIterativeResults = measureExecutionTime(() => binarySearchIterative(currentMovies, query));
-      const binaryRecursiveResults = measureExecutionTime(() => binarySearchRecursive(currentMovies, query));
-      const jumpIterativeResults = measureExecutionTime(() => jumpSearchIterative(currentMovies, query));
-      const jumpRecursiveResults = measureExecutionTime(() => jumpSearchRecursive(currentMovies, query, Math.floor(Math.sqrt(currentMovies.length))));
+      const linearIterativeResults = averageExecutionTime(() => linearSearchIterative(currentMovies, query), repetitions);
+      const linearRecursiveResults = averageExecutionTime(() => linearSearchRecursive(currentMovies, query), repetitions);
+      const binaryIterativeResults = averageExecutionTime(() => binarySearchIterative(currentMovies, query), repetitions);
+      const binaryRecursiveResults = averageExecutionTime(() => binarySearchRecursive(currentMovies, query), repetitions);
+      const jumpIterativeResults = averageExecutionTime(() => jumpSearchIterative(currentMovies, query), repetitions);
+      const jumpRecursiveResults = averageExecutionTime(() => jumpSearchRecursive(currentMovies, query, Math.floor(Math.sqrt(currentMovies.length))), repetitions);
 
       // Menyimpan waktu eksekusi ke dalam array
-      executionTimes.linearIterativeExecutionTime.push(linearIterativeResults.executionTime);
-      executionTimes.linearRecursiveExecutionTime.push(linearRecursiveResults.executionTime);
-      executionTimes.binaryIterativeExecutionTime.push(binaryIterativeResults.executionTime);
-      executionTimes.binaryRecursiveExecutionTime.push(binaryRecursiveResults.executionTime);
-      executionTimes.jumpIterativeExecutionTime.push(jumpIterativeResults.executionTime);
-      executionTimes.jumpRecursiveExecutionTime.push(jumpRecursiveResults.executionTime);
+      executionTimes.linearIterativeExecutionTime.push(linearIterativeResults.averageTime);
+      executionTimes.linearRecursiveExecutionTime.push(linearRecursiveResults.averageTime);
+      executionTimes.binaryIterativeExecutionTime.push(binaryIterativeResults.averageTime);
+      executionTimes.binaryRecursiveExecutionTime.push(binaryRecursiveResults.averageTime);
+      executionTimes.jumpIterativeExecutionTime.push(jumpIterativeResults.averageTime);
+      executionTimes.jumpRecursiveExecutionTime.push(jumpRecursiveResults.averageTime);
     }
 
     if (option.totalRecordUse % interval !== 0) {
       const currentMovies = movies.slice(0, option.totalRecordUse); // Ambil subset dari movies
 
       // Menjalankan pencarian dan mengukur waktu eksekusi
-      const linearIterativeResults = measureExecutionTime(() => linearSearchIterative(currentMovies, query));
-      const linearRecursiveResults = measureExecutionTime(() => linearSearchRecursive(currentMovies, query));
-      const binaryIterativeResults = measureExecutionTime(() => binarySearchIterative(currentMovies, query));
-      const binaryRecursiveResults = measureExecutionTime(() => binarySearchRecursive(currentMovies, query));
-      const jumpIterativeResults = measureExecutionTime(() => jumpSearchIterative(currentMovies, query));
-      const jumpRecursiveResults = measureExecutionTime(() => jumpSearchRecursive(currentMovies, query, Math.floor(Math.sqrt(currentMovies.length))));
+      const linearIterativeResults = averageExecutionTime(() => linearSearchIterative(currentMovies, query), repetitions);
+      const linearRecursiveResults = averageExecutionTime(() => linearSearchRecursive(currentMovies, query), repetitions);
+      const binaryIterativeResults = averageExecutionTime(() => binarySearchIterative(currentMovies, query), repetitions);
+      const binaryRecursiveResults = averageExecutionTime(() => binarySearchRecursive(currentMovies, query), repetitions);
+      const jumpIterativeResults = averageExecutionTime(() => jumpSearchIterative(currentMovies, query), repetitions);
+      const jumpRecursiveResults = averageExecutionTime(() => jumpSearchRecursive(currentMovies, query, Math.floor(Math.sqrt(currentMovies.length))), repetitions);
 
       // Menyimpan waktu eksekusi ke dalam array
-      executionTimes.linearIterativeExecutionTime.push(linearIterativeResults.executionTime);
-      executionTimes.linearRecursiveExecutionTime.push(linearRecursiveResults.executionTime);
-      executionTimes.binaryIterativeExecutionTime.push(binaryIterativeResults.executionTime);
-      executionTimes.binaryRecursiveExecutionTime.push(binaryRecursiveResults.executionTime);
-      executionTimes.jumpIterativeExecutionTime.push(jumpIterativeResults.executionTime);
-      executionTimes.jumpRecursiveExecutionTime.push(jumpRecursiveResults.executionTime);
+      executionTimes.linearIterativeExecutionTime.push(linearIterativeResults.averageTime);
+      executionTimes.linearRecursiveExecutionTime.push(linearRecursiveResults.averageTime);
+      executionTimes.binaryIterativeExecutionTime.push(binaryIterativeResults.averageTime);
+      executionTimes.binaryRecursiveExecutionTime.push(binaryRecursiveResults.averageTime);
+      executionTimes.jumpIterativeExecutionTime.push(jumpIterativeResults.averageTime);
+      executionTimes.jumpRecursiveExecutionTime.push(jumpRecursiveResults.averageTime);
     }
 
     // Mengembalikan hasil analitik
@@ -601,4 +591,16 @@ const measureExecutionTime = (fn: () => any) => {
   const result = fn();
   const executionTime = (performance.now() - start) / 1000; // Convert to seconds
   return { result, executionTime };
+};
+
+// Helper function to calculate average time over multiple repetitions
+const averageExecutionTime = (fn: () => any, repetitions: number) => {
+  let totalExecutionTime = 0;
+  let results: any[] = [];
+  for (let i = 0; i < repetitions; i++) {
+    const { result, executionTime } = measureExecutionTime(fn);
+    totalExecutionTime += executionTime;
+    results = result; // Assume results are consistent across runs
+  }
+  return { averageTime: totalExecutionTime / repetitions, results };
 };
