@@ -272,11 +272,11 @@ const movieController = {
   searchAnalytics: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { query, totalRecordUse } = req.body;
-
+      const { type } = req.params;
       const option = {
         totalRecordUse: parseInt(totalRecordUse),
       };
-      const { analytics, results } = await movieService.searchWithAnalyticsMovie(query, option);
+      const { analytics, results } = await movieService.searchWithAnalyticsMovie(query, option, type);
       const formattedMovies = results.map((movie: any) => ({
         ...movie,
         genre: JSON.parse(movie.genre),
@@ -372,10 +372,11 @@ const movieController = {
   getAnalytics: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { query, totalRecordUse } = req.body;
+      const { type } = req.params;
       const option = {
         totalRecordUse: parseInt(totalRecordUse),
       };
-      const analytics = await movieService.getAnalytics(query, option);
+      const analytics = await movieService.getAnalytics(query, option, type);
 
       res.status(200).json({
         status: true,
