@@ -467,7 +467,7 @@ const movieService = {
         executionTimes.jumpRecursiveExecutionTime.push(jumpRecursiveResults.averageTime);
       }
     } else {
-      repetitions = 10;
+      repetitions = 3;
       // Menghitung waktu eksekusi untuk setiap interval
       for (let i = interval; i <= option.totalRecordUse; i += interval) {
         const currentMovies = movies.slice(0, i); // Ambil subset dari movies
