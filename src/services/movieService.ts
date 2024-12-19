@@ -384,7 +384,7 @@ const movieService = {
 
     const totalExecutionTimeData: number = Math.ceil(option.totalRecordUse / interval);
 
-    const repetitions = 5;
+    const repetitions = 2;
 
     // Array untuk menyimpan waktu eksekusi
     const executionTimes: IExecutionTimes = {
