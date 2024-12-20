@@ -409,7 +409,20 @@ const movieService = {
     const totalData = movies.length;
 
     // Interval
-    const interval = 10;
+    let interval = 1;
+    if (option.totalRecordUse <= 10) {
+      interval = 1;
+    } else if (option.totalRecordUse <= 20) {
+      interval = 2;
+    } else if (option.totalRecordUse <= 300) {
+      interval = 10;
+    } else if (option.totalRecordUse <= 500) {
+      interval = 20;
+    } else if (option.totalRecordUse <= 1500) {
+      interval = 30;
+    } else {
+      interval = 50;
+    }
 
     const totalExecutionTimeData: number = Math.ceil(option.totalRecordUse / interval);
 
