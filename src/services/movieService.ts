@@ -405,6 +405,12 @@ const movieService = {
     // Ambil semua film dari database
     const movies = await prisma.movie.findMany();
 
+    movies.sort((a, b) => {
+      const titleA = a.title || "";
+      const titleB = b.title || "";
+      return titleA.localeCompare(titleB);
+    });
+
     // Hitung total data
     const totalData = movies.length;
 
